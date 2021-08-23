@@ -1,4 +1,5 @@
-//+build linux_bpf
+//go:build linux_bpf
+// +build linux_bpf
 
 package kprobe
 
@@ -107,6 +108,7 @@ func New(config *config.Config, constants []manager.ConstantEditor) (connection.
 	}
 	perfHandlerTCP := ddebpf.NewPerfHandler(closedChannelSize)
 	m := newManager(perfHandlerTCP, runtimeTracer)
+	setupDumpHandler(m)
 
 	// exclude all non-enabled probes to ensure we don't run into problems with unsupported probe types
 	for _, p := range m.Probes {
