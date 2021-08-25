@@ -1,3 +1,4 @@
+//go:build linux_bpf
 // +build linux_bpf
 
 package tracer
@@ -574,6 +575,14 @@ func (t *Tracer) DebugNetworkMaps() (*network.Connections, error) {
 		return nil, fmt.Errorf("error retrieving connections: %s", err)
 	}
 	return &network.Connections{Conns: latestConns}, nil
+}
+
+// DebugEBPFMaps returns all maps registred in the eBPF manager
+func (t *Tracer) DebugEBPFMaps(maps ...string) (string, error) {
+	if t.m == nil {
+		return "", fmt.Errorf("manager not initialized")
+	}
+	return t.m.DumpMaps(maps...)
 }
 
 // connectionExpired returns true if the passed in connection has expired
