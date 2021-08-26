@@ -181,25 +181,8 @@ func dumpMapsHandler(managerMap *manager.Map, manager *manager.Manager) string {
 	return output.String()
 }
 
-func dumpPerfMapsHandler(managerMap *manager.PerfMap, manager *manager.Manager) string {
-	var output strings.Builder
-	mapName := managerMap.Name
-
-	switch mapName {
-
-	case string(probes.ConnCloseEventMap): // maps/conn_close_event (BPF_MAP_TYPE_PERF_EVENT_ARRAY), key C.__u32, value C.__u32
-		output.WriteString("PerfMap: '" + mapName + "', key: 'C.__u32', value: 'C.__u32'\n")
-		output.WriteString(spew.Sdump(managerMap.PerfMapStats))
-
-	}
-	return output.String()
-}
-
 func setupDumpHandler(manager *manager.Manager) {
 	for _, m := range manager.Maps {
 		m.DumpHandler = dumpMapsHandler
-	}
-	for _, m := range manager.PerfMaps {
-		m.DumpHandler = dumpPerfMapsHandler
 	}
 }

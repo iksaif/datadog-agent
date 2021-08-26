@@ -121,6 +121,8 @@ func (nt *networkTracer) Register(httpMux *module.Router) error {
 		utils.WriteAsJSON(w, debugging.HTTP(cs.HTTP, cs.DNS))
 	})
 
+	// /debug/ebpf_maps as default will dump all registered maps/perfmaps
+	// an optional ?maps= argument could be pass with a list of map name : ?maps=map1,map2,map3
 	httpMux.HandleFunc("/debug/ebpf_maps", func(w http.ResponseWriter, req *http.Request) {
 		maps := []string{}
 		if listMaps := req.URL.Query().Get("maps"); listMaps != "" {
