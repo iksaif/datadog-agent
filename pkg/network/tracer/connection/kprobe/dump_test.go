@@ -1,6 +1,7 @@
+//go:build linux_bpf
 // +build linux_bpf
 
-package tracer
+package kprobe
 
 import (
 	"testing"

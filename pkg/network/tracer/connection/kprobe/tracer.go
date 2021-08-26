@@ -287,6 +287,11 @@ func (t *kprobeTracer) GetTelemetry() map[string]int64 {
 	}
 }
 
+// DumpMaps (for debugging purpose) returns all maps content by default or selected maps from maps parameter.
+func (t *kprobeTracer) DumpMaps(maps ...string) (string, error) {
+	return t.m.DumpMaps(maps...)
+}
+
 // initPerfPolling starts the listening on perf buffer events to grab closed connections
 func (t *kprobeTracer) initPerfPolling(perf *ddebpf.PerfHandler) (*perfBatchManager, error) {
 	connCloseEventMap, err := t.getMap(probes.ConnCloseEventMap)

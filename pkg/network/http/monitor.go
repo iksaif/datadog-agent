@@ -1,3 +1,4 @@
+//go:build linux_bpf
 // +build linux_bpf
 
 package http
@@ -191,4 +192,8 @@ func (m *Monitor) process(transactions []httpTX, err error) {
 	if m.handler != nil && len(transactions) > 0 {
 		m.handler(transactions)
 	}
+}
+
+func (m *Monitor) DumpMaps(maps ...string) (string, error) {
+	return m.ebpfProgram.Manager.DumpMaps(maps...)
 }

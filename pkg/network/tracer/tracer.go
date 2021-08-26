@@ -579,10 +579,19 @@ func (t *Tracer) DebugNetworkMaps() (*network.Connections, error) {
 
 // DebugEBPFMaps returns all maps registred in the eBPF manager
 func (t *Tracer) DebugEBPFMaps(maps ...string) (string, error) {
-	if t.m == nil {
-		return "", fmt.Errorf("manager not initialized")
+	tracerMaps, err := t.ebpfTracer.DumpMaps(maps...)
+	if err != nil {
+		return "", err
 	}
-	return t.m.DumpMaps(maps...)
+	if t.httpMonitor == nil {
+		return "tracer:\n" + tracerMaps, nil
+	}
+
+	httpMaps, err := t.httpMonitor.DumpMaps(maps...)
+	if err != nil {
+		return "", err
+	}
+	return "tracer:\n" + tracerMaps + "\nhttp_monitor:\n" + httpMaps, nil
 }
 
 // connectionExpired returns true if the passed in connection has expired
