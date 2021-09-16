@@ -6,6 +6,7 @@ import shutil
 import sys
 import tempfile
 from subprocess import CalledProcessError, check_output
+from threading import Thread
 
 from invoke import task
 from invoke.exceptions import Exit
@@ -487,6 +488,19 @@ def get_ebpf_build_flags():
 
     return flags
 
+def build_network_ebpf_files_program(ctx, p, debug, network_prebuilt_dir, build_dir, network_flags):
+    # Build both the standard and debug version
+    src_file = os.path.join(network_prebuilt_dir, "{}.c".format(p))
+    if not debug:
+        bc_file = os.path.join(build_dir, "{}.bc".format(p))
+        obj_file = os.path.join(build_dir, "{}.o".format(p))
+        ctx.run(CLANG_CMD.format(flags=" ".join(network_flags), bc_file=bc_file, c_file=src_file))
+        ctx.run(LLC_CMD.format(flags=" ".join(network_flags), bc_file=bc_file, obj_file=obj_file))
+    else:
+        debug_bc_file = os.path.join(build_dir, "{}-debug.bc".format(p))
+        debug_obj_file = os.path.join(build_dir, "{}-debug.o".format(p))
+        ctx.run(CLANG_CMD.format(flags=" ".join(network_flags + ["-DDEBUG=1"]), bc_file=debug_bc_file, c_file=src_file))
+        ctx.run(LLC_CMD.format(flags=" ".join(network_flags), bc_file=debug_bc_file, obj_file=debug_obj_file))
 
 def build_network_ebpf_files(ctx, build_dir):
     network_bpf_dir = os.path.join(".", "pkg", "network", "ebpf")
@@ -502,19 +516,19 @@ def build_network_ebpf_files(ctx, build_dir):
 
     network_flags = get_ebpf_build_flags()
     network_flags.append("-I{}".format(network_c_dir))
-    for p in compiled_programs:
-        # Build both the standard and debug version
-        src_file = os.path.join(network_prebuilt_dir, "{}.c".format(p))
-        bc_file = os.path.join(build_dir, "{}.bc".format(p))
-        obj_file = os.path.join(build_dir, "{}.o".format(p))
-        ctx.run(CLANG_CMD.format(flags=" ".join(network_flags), bc_file=bc_file, c_file=src_file))
-        ctx.run(LLC_CMD.format(flags=" ".join(network_flags), bc_file=bc_file, obj_file=obj_file))
+    if os.getenv('DD_NO_PARALLEL_BUILD'):
+        for debug in [False, True]:
+            for p in compiled_programs:
+                build_network_ebpf_files_program(ctx, p, debug, network_prebuilt_dir, build_dir, network_flags)
+                return
 
-        debug_bc_file = os.path.join(build_dir, "{}-debug.bc".format(p))
-        debug_obj_file = os.path.join(build_dir, "{}-debug.o".format(p))
-        ctx.run(CLANG_CMD.format(flags=" ".join(network_flags + ["-DDEBUG=1"]), bc_file=debug_bc_file, c_file=src_file))
-        ctx.run(LLC_CMD.format(flags=" ".join(network_flags), bc_file=debug_bc_file, obj_file=debug_obj_file))
+    threads = []
+    for debug in [False, True]:
+        for p in compiled_programs:
+            threads.append(Thread(target=build_network_ebpf_files_program, args=(ctx, p, debug, network_prebuilt_dir, build_dir, network_flags)))
 
+    [x.start() for x in threads]
+    [x.join() for x in threads]
 
 def build_security_ebpf_files(ctx, build_dir):
     security_agent_c_dir = os.path.join(".", "pkg", "security", "ebpf", "c")
