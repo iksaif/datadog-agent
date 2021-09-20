@@ -82,9 +82,20 @@ func generateIPv4HTTPTransaction(source netaddr.IP, dest netaddr.IP, sourcePort 
 	tx.response_last_seen = tx.request_started + latencyNS
 	tx.response_status_code = _Ctype_ushort(code)
 	tx.request_fragment = requestFragment([]byte(reqFragment))
-	tx.tup.saddr.in6_u = source.As16()
+	if source.Is6() {
+		tx.tup.saddr.in6_u = source.As16()
+	} else {
+		b := source.As4()
+		copy(tx.tup.saddr.in6_u[12:], b[:])
+	}
 	tx.tup.sport = _Ctype_ushort(sourcePort)
-	tx.tup.daddr.in6_u = dest.As16()
+	if dest.Is6() {
+		tx.tup.daddr.in6_u = dest.As16()
+	} else {
+		b := dest.As4()
+		copy(tx.tup.daddr.in6_u[12:], b[:])
+	}
+
 	tx.tup.dport = _Ctype_ushort(destPort)
 	tx.tup.metadata = 1
 

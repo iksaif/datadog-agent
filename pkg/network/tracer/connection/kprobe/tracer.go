@@ -219,8 +219,8 @@ func (t *kprobeTracer) Remove(conn *network.ConnectionStats) error {
 	t.removeTuple.Dport = conn.DPort
 	t.removeTuple.Netns = conn.NetNS
 	t.removeTuple.Pid = conn.Pid
-	t.removeTuple.Saddr.U = conn.Source.As16()
-	t.removeTuple.Daddr.U = conn.Dest.As16()
+	t.removeTuple.Saddr.FromIP(conn.Source)
+	t.removeTuple.Daddr.FromIP(conn.Dest)
 
 	if conn.Family == network.AFINET6 {
 		t.removeTuple.Metadata = uint32(netebpf.IPv6)

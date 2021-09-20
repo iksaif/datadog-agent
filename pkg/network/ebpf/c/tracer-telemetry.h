@@ -3,6 +3,7 @@
 
 #include "tracer-maps.h"
 #include "bpf_endian.h"
+#include "ip.h"
 #include "ipv6.h"
 
 #include <linux/kconfig.h>
@@ -59,9 +60,7 @@ static __always_inline void sockaddr_to_addr(struct sockaddr *sa, struct in6_add
     case AF_INET:
         sin = (struct sockaddr_in *)sa;
         if (addr) {
-            __be32 ip;
-            bpf_probe_read(&ip, sizeof(__be32), &(sin->sin_addr.s_addr));
-            ipv6_addr_set_v4mapped(ip, addr);
+            read_in_addr(addr, &sin->sin_addr);
         }
         if (port) {
             bpf_probe_read(port, sizeof(__be16), &sin->sin_port);

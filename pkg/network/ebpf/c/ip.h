@@ -19,6 +19,10 @@ static __always_inline bool is_ipv4_set(const struct in6_addr *ip) {
     return ip->s6_addr32[3] != 0;
 }
 
+static __always_inline void set_ipv4(struct in6_addr *dst, const __be32 src) {
+    dst->s6_addr32[3] = src;
+}
+
 static __always_inline bool is_ipv6_set(const struct in6_addr *ip) {
     return (ip->s6_addr32[0] | ip->s6_addr32[1] | ip->s6_addr32[2] | ip->s6_addr32[3]) != 0;
 }
@@ -32,8 +36,24 @@ static __always_inline void read_ipv6_skb(struct __sk_buff *skb, __u64 off, stru
     );
 }
 
-static __always_inline void read_ipv4_skb(struct __sk_buff *skb, __u64 off, struct in6_addr *addr) {
-    ipv6_addr_set_v4mapped(bpf_ntohl(load_word(skb, off)), addr);
+static __always_inline void read_ipv4_skb_offset(struct in6_addr *dst, struct __sk_buff *skb, __u64 offset) {
+    set_ipv4(dst, bpf_ntohl(load_word(skb, offset)));
+}
+
+static __always_inline int read_ipv4(struct in6_addr *dst, __be32 *src) {
+    return bpf_probe_read(&dst->s6_addr32[3], sizeof(__be32), src);
+}
+
+static __always_inline int read_ipv4_sock_offset(struct in6_addr *dst, struct sock *skp, __u64 offset) {
+    return bpf_probe_read(&dst->s6_addr32[3], sizeof(__be32), ((char*)skp) + offset);
+}
+
+static __always_inline int read_ipv4_flow_offset(struct in6_addr *dst, const struct flowi4 *fl4, __u64 offset) {
+    return bpf_probe_read(&dst->s6_addr32[3], sizeof(__be32), ((char*)fl4) + offset);
+}
+
+static __always_inline int read_in_addr(struct in6_addr *dst, const struct in_addr *src) {
+    return bpf_probe_read(&dst->s6_addr32[3], sizeof(__be32), (void *)&src->s_addr);
 }
 
 static __always_inline __u64 read_conn_tuple_skb(struct __sk_buff *skb, skb_info_t *info) {
@@ -51,8 +71,8 @@ static __always_inline __u64 read_conn_tuple_skb(struct __sk_buff *skb, skb_info
         }
         l4_proto = load_byte(skb, info->data_off + offsetof(struct iphdr, protocol));
         info->tup.metadata |= CONN_V4;
-        read_ipv4_skb(skb, info->data_off + offsetof(struct iphdr, saddr), &info->tup.saddr);
-        read_ipv4_skb(skb, info->data_off + offsetof(struct iphdr, daddr), &info->tup.daddr);
+        read_ipv4_skb_offset(&info->tup.saddr, skb, info->data_off + offsetof(struct iphdr, saddr));
+        read_ipv4_skb_offset(&info->tup.daddr, skb, info->data_off + offsetof(struct iphdr, daddr));
         info->data_off += ipv4_hdr_len;
         break;
     }

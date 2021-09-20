@@ -60,8 +60,8 @@ static __always_inline int nf_conntrack_tuple_to_conntrack_tuple(conntrack_tuple
             log_debug("ERR(to_conn_tuple.v4): src/dst addr not set src:%u, dst:%u\n", ct->src.u3.ip, ct->dst.u3.ip);
             return 0;
         }
-        ipv6_addr_set_v4mapped(ct->src.u3.ip, &t->saddr);
-        ipv6_addr_set_v4mapped(ct->dst.u3.ip, &t->daddr);
+        set_ipv4(&t->saddr, ct->src.u3.ip);
+        set_ipv4(&t->daddr, ct->dst.u3.ip);
     }
 #ifdef FEATURE_IPV6_ENABLED
     else if (ct->src.l3num == AF_INET6) {

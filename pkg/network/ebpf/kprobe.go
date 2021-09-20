@@ -91,6 +91,8 @@ func ToBatch(data []byte) *Batch {
 
 func (a *Inet6Addr) FromIP(ip netaddr.IP) {
 	if ip.Is4() {
+		var z [12]byte
+		copy(a.U[:12], z[:])
 		b := ip.As4()
 		copy(a.U[12:], b[:])
 	} else {

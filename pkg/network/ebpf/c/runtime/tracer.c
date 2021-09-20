@@ -75,14 +75,10 @@ static __always_inline int read_conn_tuple_partial(conn_tuple_t* t, struct sock*
     if (family == AF_INET) {
         t->metadata |= CONN_V4;
         if (!is_ipv4_set(&t->saddr)) {
-            __be32 ip;
-            bpf_probe_read(&ip, sizeof(ip), &skp->sk_rcv_saddr);
-            ipv6_addr_set_v4mapped(ip, &t->saddr);
+            read_ipv4(&t->saddr, &skp->sk_rcv_saddr);
         }
         if (!is_ipv4_set(&t->daddr)) {
-            __be32 ip;
-            bpf_probe_read(&ip, sizeof(ip), &skp->sk_daddr);
-            ipv6_addr_set_v4mapped(ip, &t->daddr);
+            read_ipv4(&t->saddr, &skp->sk_daddr);
         }
 
         if (!is_ipv4_set(&t->saddr) || !is_ipv4_set(&t->daddr)) {
@@ -301,11 +297,8 @@ int kprobe__ip_make_skb(struct pt_regs* ctx) {
     conn_tuple_t t = {};
     if (!read_conn_tuple(&t, sk, pid_tgid, CONN_TYPE_UDP)) {
         struct flowi4* fl4 = (struct flowi4*)PT_REGS_PARM2(ctx);
-        __be32 ip;
-        bpf_probe_read(&ip, sizeof(ip), &fl4->saddr);
-        ipv6_addr_set_v4mapped(ip, &t.saddr);
-        bpf_probe_read(&ip, sizeof(ip), &fl4->daddr);
-        ipv6_addr_set_v4mapped(ip, &t.daddr);
+        read_ipv4(&t.saddr, &fl4->saddr);
+        read_ipv4(&t.daddr, &fl4->daddr);
         if (!is_ipv4_set(&t.saddr) || !is_ipv4_set(&t.daddr)) {
             log_debug("ERR(fl4): src/dst addr not set src:%x,dst:%x\n", t.saddr.s6_addr32[3], t.daddr.s6_addr32[3]);
             increment_telemetry_count(udp_send_missed);

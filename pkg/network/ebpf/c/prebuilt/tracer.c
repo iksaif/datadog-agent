@@ -214,13 +214,8 @@ int kprobe__ip_make_skb(struct pt_regs* ctx) {
         }
 
         struct flowi4* fl4 = (struct flowi4*)PT_REGS_PARM2(ctx);
-        __be32 ip;
-        bpf_probe_read(&ip, sizeof(ip), ((char*)fl4) + offset_saddr_fl4());
-        ipv6_addr_set_v4mapped(ip, &t.saddr);
-
-        bpf_probe_read(&ip, sizeof(ip), ((char*)fl4) + offset_daddr_fl4());
-        ipv6_addr_set_v4mapped(ip, &t.daddr);
-
+        read_ipv4_flow_offset(&t.saddr, fl4, offset_saddr_fl4());
+        read_ipv4_flow_offset(&t.daddr, fl4, offset_daddr_fl4());
         if (!is_ipv4_set(&t.saddr) || !is_ipv4_set(&t.daddr)) {
             log_debug("ERR(fl4): src/dst addr not set src:%x,dst:%x\n", t.saddr.s6_addr32[3], t.daddr.s6_addr32[3]);
             increment_telemetry_count(udp_send_missed);

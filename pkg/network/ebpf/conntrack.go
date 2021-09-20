@@ -73,5 +73,12 @@ func (t ConntrackTuple) String() string {
 }
 
 func (a *In6Addr) FromIP(ip netaddr.IP) {
-	a.U = ip.As16()
+	if ip.Is4() {
+		var z [12]byte
+		copy(a.U[:12], z[:])
+		b := ip.As4()
+		copy(a.U[12:], b[:])
+	} else {
+		a.U = ip.As16()
+	}
 }

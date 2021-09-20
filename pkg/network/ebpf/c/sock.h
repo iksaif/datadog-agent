@@ -192,14 +192,10 @@ static __always_inline int read_conn_tuple_partial(conn_tuple_t * t, struct sock
     if (check_family(skp, AF_INET)) {
         t->metadata |= CONN_V4;
         if (!is_ipv4_set(&t->saddr)) {
-            __be32 ip;
-            bpf_probe_read(&ip, sizeof(__be32), ((char*)skp) + offset_saddr());
-            ipv6_addr_set_v4mapped(ip, &t->saddr);
+            read_ipv4_sock_offset(&t->saddr, skp, offset_saddr());
         }
         if (!is_ipv4_set(&t->daddr)) {
-            __be32 ip;
-            bpf_probe_read(&ip, sizeof(__be32), ((char*)skp) + offset_daddr());
-            ipv6_addr_set_v4mapped(ip, &t->daddr);
+            read_ipv4_sock_offset(&t->daddr, skp, offset_daddr());
         }
 
         if (!is_ipv4_set(&t->saddr) || !is_ipv4_set(&t->daddr)) {
