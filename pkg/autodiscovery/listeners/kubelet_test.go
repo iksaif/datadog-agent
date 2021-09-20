@@ -28,13 +28,13 @@ const (
 func TestCreatePodService(t *testing.T) {
 	tests := []struct {
 		name             string
-		pod              workloadmeta.KubernetesPod
-		containers       []workloadmeta.Container
+		pod              *workloadmeta.KubernetesPod
+		containers       []*workloadmeta.Container
 		expectedServices map[string]Service
 	}{
 		{
 			name: "pod with several containers collects ports in ascending order",
-			pod: workloadmeta.KubernetesPod{
+			pod: &workloadmeta.KubernetesPod{
 				EntityID: workloadmeta.EntityID{
 					Kind: workloadmeta.KindKubernetesPod,
 					ID:   podID,
@@ -45,7 +45,7 @@ func TestCreatePodService(t *testing.T) {
 				},
 				IP: "127.0.0.1",
 			},
-			containers: []workloadmeta.Container{
+			containers: []*workloadmeta.Container{
 				{
 					Ports: []workloadmeta.ContainerPort{
 						{
@@ -103,7 +103,7 @@ func TestCreatePodService(t *testing.T) {
 }
 
 func TestCreateContainerService(t *testing.T) {
-	pod := workloadmeta.KubernetesPod{
+	pod := &workloadmeta.KubernetesPod{
 		EntityID: workloadmeta.EntityID{
 			Kind: workloadmeta.KindKubernetesPod,
 			ID:   podID,
@@ -115,7 +115,7 @@ func TestCreateContainerService(t *testing.T) {
 		IP: "127.0.0.1",
 	}
 
-	podWithAnnotations := workloadmeta.KubernetesPod{
+	podWithAnnotations := &workloadmeta.KubernetesPod{
 		EntityID: workloadmeta.EntityID{
 			Kind: workloadmeta.KindKubernetesPod,
 			ID:   podID,
@@ -148,14 +148,14 @@ func TestCreateContainerService(t *testing.T) {
 
 	tests := []struct {
 		name             string
-		pod              workloadmeta.KubernetesPod
-		container        workloadmeta.Container
+		pod              *workloadmeta.KubernetesPod
+		container        *workloadmeta.Container
 		expectedServices map[string]Service
 	}{
 		{
 			name: "basic container setup",
 			pod:  pod,
-			container: workloadmeta.Container{
+			container: &workloadmeta.Container{
 				EntityID:   containerEntityID,
 				EntityMeta: containerEntityMeta,
 				Image: workloadmeta.ContainerImage{
@@ -191,7 +191,7 @@ func TestCreateContainerService(t *testing.T) {
 		{
 			name: "recently stopped container excludes metrics but not logs",
 			pod:  pod,
-			container: workloadmeta.Container{
+			container: &workloadmeta.Container{
 				EntityID:   containerEntityID,
 				EntityMeta: containerEntityMeta,
 				Image:      basicImage,
@@ -224,7 +224,7 @@ func TestCreateContainerService(t *testing.T) {
 		{
 			name: "old stopped container does not get collected",
 			pod:  pod,
-			container: workloadmeta.Container{
+			container: &workloadmeta.Container{
 				EntityID:   containerEntityID,
 				EntityMeta: containerEntityMeta,
 				Image:      basicImage,
@@ -238,7 +238,7 @@ func TestCreateContainerService(t *testing.T) {
 		{
 			name: "container with multiple ports collects them in ascending order",
 			pod:  pod,
-			container: workloadmeta.Container{
+			container: &workloadmeta.Container{
 				EntityID:   containerEntityID,
 				EntityMeta: containerEntityMeta,
 				Image:      basicImage,
@@ -289,7 +289,7 @@ func TestCreateContainerService(t *testing.T) {
 		{
 			name: "pod with custom check names and identifiers",
 			pod:  podWithAnnotations,
-			container: workloadmeta.Container{
+			container: &workloadmeta.Container{
 				EntityID:   containerEntityID,
 				EntityMeta: containerEntityMeta,
 				Image:      basicImage,

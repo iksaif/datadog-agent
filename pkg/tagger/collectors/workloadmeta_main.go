@@ -24,7 +24,7 @@ const (
 type metaStore interface {
 	Subscribe(string, *workloadmeta.Filter) chan workloadmeta.EventBundle
 	Unsubscribe(chan workloadmeta.EventBundle)
-	GetContainer(string) (workloadmeta.Container, error)
+	GetContainer(string) (*workloadmeta.Container, error)
 }
 
 // WorkloadMetaCollector collects tags from the metadata in the workloadmeta
@@ -33,6 +33,9 @@ type WorkloadMetaCollector struct {
 	store metaStore
 	out   chan<- []*TagInfo
 	stop  chan struct{}
+
+	containerEnvAsTags    map[string]string
+	containerLabelsAsTags map[string]string
 
 	labelsAsTags      map[string]string
 	annotationsAsTags map[string]string
@@ -45,14 +48,20 @@ func (c *WorkloadMetaCollector) Detect(ctx context.Context, out chan<- []*TagInf
 	c.out = out
 	c.stop = make(chan struct{})
 
+	c.containerLabelsAsTags = retrieveMappingFromConfig("docker_labels_as_tags")
+	c.containerEnvAsTags = mergeMaps(
+		retrieveMappingFromConfig("docker_env_as_tags"),
+		retrieveMappingFromConfig("container_env_as_tags"),
+	)
+
 	labelsAsTags := config.Datadog.GetStringMapString("kubernetes_pod_labels_as_tags")
 	annotationsAsTags := config.Datadog.GetStringMapString("kubernetes_pod_annotations_as_tags")
-	c.init(labelsAsTags, annotationsAsTags)
+	c.initPodMetaAsTags(labelsAsTags, annotationsAsTags)
 
 	return StreamCollection, nil
 }
 
-func (c *WorkloadMetaCollector) init(labelsAsTags, annotationsAsTags map[string]string) {
+func (c *WorkloadMetaCollector) initPodMetaAsTags(labelsAsTags, annotationsAsTags map[string]string) {
 	c.labelsAsTags, c.globLabels = utils.InitMetadataAsTags(labelsAsTags)
 	c.annotationsAsTags, c.globAnnotations = utils.InitMetadataAsTags(annotationsAsTags)
 }

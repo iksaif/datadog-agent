@@ -15,8 +15,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	sourcePod = "workloadmeta-kubernetes_pod"
+)
+
 type store struct {
-	containers map[string]workloadmeta.Container
+	containers map[string]*workloadmeta.Container
 }
 
 func (s *store) Subscribe(string, *workloadmeta.Filter) chan workloadmeta.EventBundle {
@@ -25,7 +29,7 @@ func (s *store) Subscribe(string, *workloadmeta.Filter) chan workloadmeta.EventB
 
 func (s *store) Unsubscribe(chan workloadmeta.EventBundle) {}
 
-func (s *store) GetContainer(id string) (workloadmeta.Container, error) {
+func (s *store) GetContainer(id string) (*workloadmeta.Container, error) {
 	c, ok := s.containers[id]
 	if !ok {
 		return c, errors.NewNotFound(id)
@@ -62,7 +66,7 @@ func TestHandleKubePod(t *testing.T) {
 	noEnvContainerTaggerEntityID := fmt.Sprintf("container_id://%s", noEnvContainerID)
 
 	store := &store{
-		containers: map[string]workloadmeta.Container{
+		containers: map[string]*workloadmeta.Container{
 			fullyFleshedContainerID: {
 				EntityID: workloadmeta.EntityID{
 					Kind: workloadmeta.KindContainer,
@@ -167,7 +171,7 @@ func TestHandleKubePod(t *testing.T) {
 			},
 			expected: []*TagInfo{
 				{
-					Source: workloadmetaCollectorName,
+					Source: sourcePod,
 					Entity: podTaggerEntityID,
 					HighCardTags: []string{
 						"gitcommit:foobar",
@@ -208,7 +212,7 @@ func TestHandleKubePod(t *testing.T) {
 			},
 			expected: []*TagInfo{
 				{
-					Source:       workloadmetaCollectorName,
+					Source:       sourcePod,
 					Entity:       podTaggerEntityID,
 					HighCardTags: []string{},
 					OrchestratorCardTags: []string{
@@ -220,7 +224,7 @@ func TestHandleKubePod(t *testing.T) {
 					StandardTags: []string{},
 				},
 				{
-					Source: workloadmetaCollectorName,
+					Source: sourcePod,
 					Entity: fullyFleshedContainerTaggerEntityID,
 					HighCardTags: []string{
 						fmt.Sprintf("container_id:%s", fullyFleshedContainerID),
@@ -258,7 +262,7 @@ func TestHandleKubePod(t *testing.T) {
 			},
 			expected: []*TagInfo{
 				{
-					Source:       workloadmetaCollectorName,
+					Source:       sourcePod,
 					Entity:       podTaggerEntityID,
 					HighCardTags: []string{},
 					OrchestratorCardTags: []string{
@@ -270,7 +274,7 @@ func TestHandleKubePod(t *testing.T) {
 					StandardTags: []string{},
 				},
 				{
-					Source: workloadmetaCollectorName,
+					Source: sourcePod,
 					Entity: noEnvContainerTaggerEntityID,
 					HighCardTags: []string{
 						fmt.Sprintf("container_id:%s", noEnvContainerID),
@@ -303,7 +307,7 @@ func TestHandleKubePod(t *testing.T) {
 			},
 			expected: []*TagInfo{
 				{
-					Source:       workloadmetaCollectorName,
+					Source:       sourcePod,
 					Entity:       podTaggerEntityID,
 					HighCardTags: []string{},
 					OrchestratorCardTags: []string{
@@ -325,11 +329,11 @@ func TestHandleKubePod(t *testing.T) {
 			collector := &WorkloadMetaCollector{
 				store: store,
 			}
-			collector.init(tt.labelsAsTags, tt.annotationsAsTags)
+			collector.initPodMetaAsTags(tt.labelsAsTags, tt.annotationsAsTags)
 
 			actual := collector.handleKubePod(workloadmeta.Event{
 				Type:   workloadmeta.EventTypeSet,
-				Entity: tt.pod,
+				Entity: &tt.pod,
 			})
 
 			assertTagInfoListEqual(t, tt.expected, actual)
