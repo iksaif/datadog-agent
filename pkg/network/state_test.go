@@ -12,8 +12,8 @@ import (
 
 	"github.com/DataDog/datadog-agent/pkg/network/dns"
 	"github.com/DataDog/datadog-agent/pkg/network/http"
-	"github.com/DataDog/datadog-agent/pkg/process/util"
 	"go4.org/intern"
+	"inet.af/netaddr"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -135,8 +135,8 @@ func TestRemoveConnections(t *testing.T) {
 		Pid:                  123,
 		Type:                 UDP,
 		Family:               AFINET,
-		Source:               util.AddressFromString("127.0.0.1"),
-		Dest:                 util.AddressFromString("127.0.0.1"),
+		Source:               netaddr.MustParseIP("127.0.0.1"),
+		Dest:                 netaddr.MustParseIP("127.0.0.1"),
 		SPort:                31890,
 		DPort:                80,
 		MonotonicSentBytes:   12345,
@@ -173,8 +173,8 @@ func TestRetrieveClosedConnection(t *testing.T) {
 		Pid:                  123,
 		Type:                 TCP,
 		Family:               AFINET,
-		Source:               util.AddressFromString("127.0.0.1"),
-		Dest:                 util.AddressFromString("127.0.0.1"),
+		Source:               netaddr.MustParseIP("127.0.0.1"),
+		Dest:                 netaddr.MustParseIP("127.0.0.1"),
 		SPort:                31890,
 		DPort:                80,
 		MonotonicSentBytes:   12345,
@@ -255,8 +255,8 @@ func TestLastStats(t *testing.T) {
 		Pid:                  123,
 		Type:                 TCP,
 		Family:               AFINET,
-		Source:               util.AddressFromString("127.0.0.1"),
-		Dest:                 util.AddressFromString("127.0.0.1"),
+		Source:               netaddr.MustParseIP("127.0.0.1"),
+		Dest:                 netaddr.MustParseIP("127.0.0.1"),
 		SPort:                31890,
 		DPort:                80,
 		MonotonicSentBytes:   36,
@@ -335,8 +335,8 @@ func TestLastStatsForClosedConnection(t *testing.T) {
 		Pid:                  123,
 		Type:                 TCP,
 		Family:               AFINET,
-		Source:               util.AddressFromString("127.0.0.1"),
-		Dest:                 util.AddressFromString("127.0.0.1"),
+		Source:               netaddr.MustParseIP("127.0.0.1"),
+		Dest:                 netaddr.MustParseIP("127.0.0.1"),
 		SPort:                31890,
 		DPort:                80,
 		MonotonicSentBytes:   36,
@@ -388,8 +388,8 @@ func TestRaceConditions(t *testing.T) {
 				Pid:                  1 + i,
 				Type:                 TCP,
 				Family:               AFINET,
-				Source:               util.AddressFromString("127.0.0.1"),
-				Dest:                 util.AddressFromString("127.0.0.1"),
+				Source:               netaddr.MustParseIP("127.0.0.1"),
+				Dest:                 netaddr.MustParseIP("127.0.0.1"),
 				SPort:                uint16(rand.Int()),
 				DPort:                uint16(rand.Int()),
 				MonotonicSentBytes:   uint64(rand.Int()),
@@ -436,8 +436,8 @@ func TestSameKeyEdgeCases(t *testing.T) {
 		Pid:                123,
 		Type:               TCP,
 		Family:             AFINET,
-		Source:             util.AddressFromString("127.0.0.1"),
-		Dest:               util.AddressFromString("127.0.0.1"),
+		Source:             netaddr.MustParseIP("127.0.0.1"),
+		Dest:               netaddr.MustParseIP("127.0.0.1"),
 		MonotonicSentBytes: 3,
 	}
 
@@ -529,8 +529,8 @@ func TestSameKeyEdgeCases(t *testing.T) {
 			Pid:                123,
 			Type:               TCP,
 			Family:             AFINET,
-			Source:             util.AddressFromString("127.0.0.1"),
-			Dest:               util.AddressFromString("127.0.0.1"),
+			Source:             netaddr.MustParseIP("127.0.0.1"),
+			Dest:               netaddr.MustParseIP("127.0.0.1"),
 			SPort:              9000,
 			DPort:              1234,
 			MonotonicSentBytes: 1,
@@ -981,8 +981,8 @@ func TestStatsResetOnUnderflow(t *testing.T) {
 		Pid:                123,
 		Type:               TCP,
 		Family:             AFINET,
-		Source:             util.AddressFromString("127.0.0.1"),
-		Dest:               util.AddressFromString("127.0.0.1"),
+		Source:             netaddr.MustParseIP("127.0.0.1"),
+		Dest:               netaddr.MustParseIP("127.0.0.1"),
 		MonotonicSentBytes: 3,
 		IntraHost:          true,
 	}
@@ -1018,8 +1018,8 @@ func TestDoubleCloseOnTwoClients(t *testing.T) {
 		Pid:                123,
 		Type:               TCP,
 		Family:             AFINET,
-		Source:             util.AddressFromString("127.0.0.1"),
-		Dest:               util.AddressFromString("127.0.0.1"),
+		Source:             netaddr.MustParseIP("127.0.0.1"),
+		Dest:               netaddr.MustParseIP("127.0.0.1"),
 		MonotonicSentBytes: 3,
 		LastSentBytes:      3,
 		IntraHost:          true,
@@ -1060,8 +1060,8 @@ func TestUnorderedCloseEvent(t *testing.T) {
 		Pid:                123,
 		Type:               TCP,
 		Family:             AFINET,
-		Source:             util.AddressFromString("127.0.0.1"),
-		Dest:               util.AddressFromString("127.0.0.1"),
+		Source:             netaddr.MustParseIP("127.0.0.1"),
+		Dest:               netaddr.MustParseIP("127.0.0.1"),
 		MonotonicSentBytes: 3,
 	}
 
@@ -1112,8 +1112,8 @@ func TestAggregateClosedConnectionsTimestamp(t *testing.T) {
 		Pid:                123,
 		Type:               TCP,
 		Family:             AFINET,
-		Source:             util.AddressFromString("127.0.0.1"),
-		Dest:               util.AddressFromString("127.0.0.1"),
+		Source:             netaddr.MustParseIP("127.0.0.1"),
+		Dest:               netaddr.MustParseIP("127.0.0.1"),
 		MonotonicSentBytes: 3,
 	}
 
@@ -1142,8 +1142,8 @@ func TestDNSStatsWithMultipleClients(t *testing.T) {
 		Pid:    123,
 		Type:   TCP,
 		Family: AFINET,
-		Source: util.AddressFromString("127.0.0.1"),
-		Dest:   util.AddressFromString("127.0.0.1"),
+		Source: netaddr.MustParseIP("127.0.0.1"),
+		Dest:   netaddr.MustParseIP("127.0.0.1"),
 		SPort:  1000,
 		DPort:  53,
 	}
@@ -1195,8 +1195,8 @@ func TestDNSStatsWithMultipleClientsWithDomainCollectionEnabled(t *testing.T) {
 		Pid:    123,
 		Type:   TCP,
 		Family: AFINET,
-		Source: util.AddressFromString("127.0.0.1"),
-		Dest:   util.AddressFromString("127.0.0.1"),
+		Source: netaddr.MustParseIP("127.0.0.1"),
+		Dest:   netaddr.MustParseIP("127.0.0.1"),
 		SPort:  1000,
 		DPort:  53,
 	}
@@ -1253,8 +1253,8 @@ func TestDNSStatsPIDCollisions(t *testing.T) {
 		Pid:    123,
 		Type:   TCP,
 		Family: AFINET,
-		Source: util.AddressFromString("127.0.0.1"),
-		Dest:   util.AddressFromString("127.0.0.1"),
+		Source: netaddr.MustParseIP("127.0.0.1"),
+		Dest:   netaddr.MustParseIP("127.0.0.1"),
 		SPort:  1000,
 		DPort:  53,
 	}
@@ -1294,8 +1294,8 @@ func TestDNSStatsPIDCollisions(t *testing.T) {
 
 func TestHTTPStats(t *testing.T) {
 	c := ConnectionStats{
-		Source: util.AddressFromString("1.1.1.1"),
-		Dest:   util.AddressFromString("0.0.0.0"),
+		Source: netaddr.MustParseIP("1.1.1.1"),
+		Dest:   netaddr.MustParseIP("0.0.0.0"),
 		SPort:  1000,
 		DPort:  80,
 	}
@@ -1320,8 +1320,8 @@ func TestHTTPStats(t *testing.T) {
 
 func TestHTTPStatsWithMultipleClients(t *testing.T) {
 	c := ConnectionStats{
-		Source: util.AddressFromString("1.1.1.1"),
-		Dest:   util.AddressFromString("0.0.0.0"),
+		Source: netaddr.MustParseIP("1.1.1.1"),
+		Dest:   netaddr.MustParseIP("0.0.0.0"),
 		SPort:  1000,
 		DPort:  80,
 	}
@@ -1383,8 +1383,8 @@ func TestDetermineConnectionIntraHost(t *testing.T) {
 		{
 			name: "equal source/dest",
 			conn: ConnectionStats{
-				Source: util.AddressFromString("1.1.1.1"),
-				Dest:   util.AddressFromString("1.1.1.1"),
+				Source: netaddr.MustParseIP("1.1.1.1"),
+				Dest:   netaddr.MustParseIP("1.1.1.1"),
 				SPort:  123,
 				DPort:  456,
 			},
@@ -1393,8 +1393,8 @@ func TestDetermineConnectionIntraHost(t *testing.T) {
 		{
 			name: "source/dest loopback",
 			conn: ConnectionStats{
-				Source: util.AddressFromString("127.0.0.1"),
-				Dest:   util.AddressFromString("127.0.0.1"),
+				Source: netaddr.MustParseIP("127.0.0.1"),
+				Dest:   netaddr.MustParseIP("127.0.0.1"),
 				SPort:  123,
 				DPort:  456,
 			},
@@ -1403,13 +1403,13 @@ func TestDetermineConnectionIntraHost(t *testing.T) {
 		{
 			name: "dest nat'ed to loopback",
 			conn: ConnectionStats{
-				Source: util.AddressFromString("1.1.1.1"),
-				Dest:   util.AddressFromString("2.2.2.2"),
+				Source: netaddr.MustParseIP("1.1.1.1"),
+				Dest:   netaddr.MustParseIP("2.2.2.2"),
 				SPort:  123,
 				DPort:  456,
 				IPTranslation: &IPTranslation{
-					ReplSrcIP:   util.AddressFromString("127.0.0.1"),
-					ReplDstIP:   util.AddressFromString("1.1.1.1"),
+					ReplSrcIP:   netaddr.MustParseIP("127.0.0.1"),
+					ReplDstIP:   netaddr.MustParseIP("1.1.1.1"),
 					ReplSrcPort: 456,
 					ReplDstPort: 123,
 				},
@@ -1419,15 +1419,15 @@ func TestDetermineConnectionIntraHost(t *testing.T) {
 		{
 			name: "local connection with nat on both sides",
 			conn: ConnectionStats{
-				Source:    util.AddressFromString("1.1.1.1"),
-				Dest:      util.AddressFromString("169.254.169.254"),
+				Source:    netaddr.MustParseIP("1.1.1.1"),
+				Dest:      netaddr.MustParseIP("169.254.169.254"),
 				SPort:     12345,
 				DPort:     80,
 				Direction: OUTGOING,
 				NetNS:     1212,
 				IPTranslation: &IPTranslation{
-					ReplSrcIP:   util.AddressFromString("127.0.0.1"),
-					ReplDstIP:   util.AddressFromString("1.1.1.1"),
+					ReplSrcIP:   netaddr.MustParseIP("127.0.0.1"),
+					ReplDstIP:   netaddr.MustParseIP("1.1.1.1"),
 					ReplSrcPort: 8181,
 					ReplDstPort: 12345,
 				},
@@ -1437,15 +1437,15 @@ func TestDetermineConnectionIntraHost(t *testing.T) {
 		{
 			name: "local connection with nat on both sides",
 			conn: ConnectionStats{
-				Source:    util.AddressFromString("127.0.0.1"),
-				Dest:      util.AddressFromString("1.1.1.1"),
+				Source:    netaddr.MustParseIP("127.0.0.1"),
+				Dest:      netaddr.MustParseIP("1.1.1.1"),
 				SPort:     8181,
 				DPort:     12345,
 				Direction: INCOMING,
 				NetNS:     1233,
 				IPTranslation: &IPTranslation{
-					ReplSrcIP:   util.AddressFromString("1.1.1.1"),
-					ReplDstIP:   util.AddressFromString("169.254.169.254"),
+					ReplSrcIP:   netaddr.MustParseIP("1.1.1.1"),
+					ReplDstIP:   netaddr.MustParseIP("169.254.169.254"),
 					ReplSrcPort: 12345,
 					ReplDstPort: 80,
 				},
@@ -1455,15 +1455,15 @@ func TestDetermineConnectionIntraHost(t *testing.T) {
 		{
 			name: "remote connection with source translation (redirect)",
 			conn: ConnectionStats{
-				Source:    util.AddressFromString("4.4.4.4"),
-				Dest:      util.AddressFromString("2.2.2.2"),
+				Source:    netaddr.MustParseIP("4.4.4.4"),
+				Dest:      netaddr.MustParseIP("2.2.2.2"),
 				SPort:     12345,
 				DPort:     80,
 				Direction: INCOMING,
 				NetNS:     2,
 				IPTranslation: &IPTranslation{
-					ReplSrcIP:   util.AddressFromString("2.2.2.2"),
-					ReplDstIP:   util.AddressFromString("127.0.0.1"),
+					ReplSrcIP:   netaddr.MustParseIP("2.2.2.2"),
+					ReplDstIP:   netaddr.MustParseIP("127.0.0.1"),
 					ReplSrcPort: 12345,
 					ReplDstPort: 15006,
 				},
@@ -1473,8 +1473,8 @@ func TestDetermineConnectionIntraHost(t *testing.T) {
 		{
 			name: "local connection, same network ns",
 			conn: ConnectionStats{
-				Source:    util.AddressFromString("1.1.1.1"),
-				Dest:      util.AddressFromString("2.2.2.2"),
+				Source:    netaddr.MustParseIP("1.1.1.1"),
+				Dest:      netaddr.MustParseIP("2.2.2.2"),
 				SPort:     12345,
 				DPort:     80,
 				Direction: OUTGOING,
@@ -1485,8 +1485,8 @@ func TestDetermineConnectionIntraHost(t *testing.T) {
 		{
 			name: "local connection, same network ns",
 			conn: ConnectionStats{
-				Source:    util.AddressFromString("2.2.2.2"),
-				Dest:      util.AddressFromString("1.1.1.1"),
+				Source:    netaddr.MustParseIP("2.2.2.2"),
+				Dest:      netaddr.MustParseIP("1.1.1.1"),
 				SPort:     80,
 				DPort:     12345,
 				Direction: INCOMING,
@@ -1497,8 +1497,8 @@ func TestDetermineConnectionIntraHost(t *testing.T) {
 		{
 			name: "local connection, different network ns",
 			conn: ConnectionStats{
-				Source:    util.AddressFromString("1.1.1.1"),
-				Dest:      util.AddressFromString("2.2.2.2"),
+				Source:    netaddr.MustParseIP("1.1.1.1"),
+				Dest:      netaddr.MustParseIP("2.2.2.2"),
 				SPort:     12345,
 				DPort:     80,
 				Direction: OUTGOING,
@@ -1509,8 +1509,8 @@ func TestDetermineConnectionIntraHost(t *testing.T) {
 		{
 			name: "local connection, different network ns",
 			conn: ConnectionStats{
-				Source:    util.AddressFromString("2.2.2.2"),
-				Dest:      util.AddressFromString("1.1.1.1"),
+				Source:    netaddr.MustParseIP("2.2.2.2"),
+				Dest:      netaddr.MustParseIP("1.1.1.1"),
 				SPort:     80,
 				DPort:     12345,
 				Direction: INCOMING,
@@ -1521,8 +1521,8 @@ func TestDetermineConnectionIntraHost(t *testing.T) {
 		{
 			name: "remote connection",
 			conn: ConnectionStats{
-				Source:    util.AddressFromString("1.1.1.1"),
-				Dest:      util.AddressFromString("3.3.3.3"),
+				Source:    netaddr.MustParseIP("1.1.1.1"),
+				Dest:      netaddr.MustParseIP("3.3.3.3"),
 				SPort:     12345,
 				DPort:     80,
 				Direction: OUTGOING,
@@ -1562,8 +1562,8 @@ func generateRandConnections(n int) []ConnectionStats {
 			Pid:                  123,
 			Type:                 TCP,
 			Family:               AFINET,
-			Source:               util.AddressFromString("127.0.0.1"),
-			Dest:                 util.AddressFromString("127.0.0.1"),
+			Source:               netaddr.MustParseIP("127.0.0.1"),
+			Dest:                 netaddr.MustParseIP("127.0.0.1"),
 			SPort:                uint16(rand.Intn(math.MaxUint16)),
 			DPort:                uint16(rand.Intn(math.MaxUint16)),
 			MonotonicRecvBytes:   rand.Uint64(),

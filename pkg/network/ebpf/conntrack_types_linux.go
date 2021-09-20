@@ -3,11 +3,13 @@
 
 package ebpf
 
+type In6Addr struct {
+	U [16]byte
+}
+
 type ConntrackTuple struct {
-	Saddr_h  uint64
-	Saddr_l  uint64
-	Daddr_h  uint64
-	Daddr_l  uint64
+	Saddr    In6Addr
+	Daddr    In6Addr
 	Sport    uint16
 	Dport    uint16
 	Netns    uint32

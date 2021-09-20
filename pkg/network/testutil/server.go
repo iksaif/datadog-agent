@@ -8,6 +8,8 @@ import (
 	"net"
 	"testing"
 
+	"inet.af/netaddr"
+
 	"github.com/DataDog/datadog-agent/pkg/process/util"
 	"github.com/stretchr/testify/require"
 	"github.com/vishvananda/netns"
@@ -15,7 +17,7 @@ import (
 
 // StartServerTCPNs is identical to StartServerTCP, but it operates with the
 // network namespace provided by name.
-func StartServerTCPNs(t *testing.T, ip net.IP, port int, ns string) io.Closer {
+func StartServerTCPNs(t *testing.T, ip netaddr.IP, port int, ns string) io.Closer {
 	h, err := netns.GetFromName(ns)
 	require.NoError(t, err)
 
@@ -31,11 +33,11 @@ func StartServerTCPNs(t *testing.T, ip net.IP, port int, ns string) io.Closer {
 // StartServerTCP starts a TCP server listening at provided IP address and port.
 // It will respond to any connection with "hello" and then close the connection.
 // It returns an io.Closer that should be Close'd when you are finished with it.
-func StartServerTCP(t *testing.T, ip net.IP, port int) io.Closer {
+func StartServerTCP(t *testing.T, ip netaddr.IP, port int) io.Closer {
 	ch := make(chan struct{})
 	addr := fmt.Sprintf("%s:%d", ip, port)
 	network := "tcp"
-	if isIpv6(ip) {
+	if ip.Is6() {
 		network = "tcp6"
 		addr = fmt.Sprintf("[%s]:%d", ip, port)
 	}
@@ -61,7 +63,7 @@ func StartServerTCP(t *testing.T, ip net.IP, port int) io.Closer {
 
 // StartServerUDPNs is identical to StartServerUDP, but it operates with the
 // network namespace provided by name.
-func StartServerUDPNs(t *testing.T, ip net.IP, port int, ns string) io.Closer {
+func StartServerUDPNs(t *testing.T, ip netaddr.IP, port uint16, ns string) io.Closer {
 	h, err := netns.GetFromName(ns)
 	require.NoError(t, err)
 
@@ -77,19 +79,14 @@ func StartServerUDPNs(t *testing.T, ip net.IP, port int, ns string) io.Closer {
 // StartServerUDP starts a UDP server listening at provided IP address and port.
 // It does not respond in any fashion to sent datagrams.
 // It returns an io.Closer that should be Close'd when you are finished with it.
-func StartServerUDP(t *testing.T, ip net.IP, port int) io.Closer {
+func StartServerUDP(t *testing.T, ip netaddr.IP, port uint16) io.Closer {
 	ch := make(chan struct{})
 	network := "udp"
-	if isIpv6(ip) {
+	if ip.Is6() {
 		network = "udp6"
 	}
 
-	addr := &net.UDPAddr{
-		IP:   ip,
-		Port: port,
-	}
-
-	l, err := net.ListenUDP(network, addr)
+	l, err := net.ListenUDP(network, netaddr.IPPortFrom(ip, port).UDPAddr())
 	require.NoError(t, err)
 	go func() {
 		close(ch)

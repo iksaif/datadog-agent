@@ -2,11 +2,12 @@
 #define __TRACER_TELEMETRY_H
 
 #include "tracer-maps.h"
-
 #include "bpf_endian.h"
+#include "ipv6.h"
 
 #include <linux/kconfig.h>
 #include <net/sock.h>
+#include <net/ipv6.h>
 
 enum telemetry_counter
 {
@@ -44,7 +45,7 @@ static __always_inline void increment_telemetry_count(enum telemetry_counter cou
     }
 }
 
-static __always_inline void sockaddr_to_addr(struct sockaddr *sa, u64 *addr_h, u64 *addr_l, u16 *port) {
+static __always_inline void sockaddr_to_addr(struct sockaddr *sa, struct in6_addr *addr, u16 *port) {
     if (!sa) {
         return;
     }
@@ -57,8 +58,10 @@ static __always_inline void sockaddr_to_addr(struct sockaddr *sa, u64 *addr_h, u
     switch (family) {
     case AF_INET:
         sin = (struct sockaddr_in *)sa;
-        if (addr_l) {
-            bpf_probe_read(addr_l, sizeof(__be32), &(sin->sin_addr.s_addr));
+        if (addr) {
+            __be32 ip;
+            bpf_probe_read(&ip, sizeof(__be32), &(sin->sin_addr.s_addr));
+            ipv6_addr_set_v4mapped(ip, addr);
         }
         if (port) {
             bpf_probe_read(port, sizeof(__be16), &sin->sin_port);
@@ -67,9 +70,8 @@ static __always_inline void sockaddr_to_addr(struct sockaddr *sa, u64 *addr_h, u
         break;
     case AF_INET6:
         sin6 = (struct sockaddr_in6 *)sa;
-        if (addr_l && addr_h) {
-            bpf_probe_read(addr_h, sizeof(u64), sin6->sin6_addr.s6_addr);
-            bpf_probe_read(addr_l, sizeof(u64), &(sin6->sin6_addr.s6_addr[8]));
+        if (addr) {
+            read_in6_addr(addr, &sin6->sin6_addr);
         }
         if (port) {
             bpf_probe_read(port, sizeof(u16), &sin6->sin6_port);
