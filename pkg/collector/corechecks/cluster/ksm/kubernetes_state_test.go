@@ -897,6 +897,62 @@ func TestKSMCheck_hostnameAndTags(t *testing.T) {
 	}
 }
 
+func TestKSMCheck_processLabelsAsTags(t *testing.T) {
+	tests := []struct {
+		name     string
+		config   *KSMConfig
+		expected map[string]*JoinsConfig
+	}{
+		{
+			name: "Initially empty",
+			config: &KSMConfig{
+				LabelJoins: map[string]*JoinsConfig{},
+				LabelsAsTags: map[string][]string{
+					"pod": {"my_pod_label"},
+				},
+			},
+			expected: map[string]*JoinsConfig{
+				"kube_pod_labels": {
+					LabelsToMatch: []string{"pod", "namespace"},
+					LabelsToGet:   []string{"my_pod_label"},
+				},
+			},
+		},
+		{
+			name: "Already initialized",
+			config: &KSMConfig{
+				LabelJoins: map[string]*JoinsConfig{
+					"kube_pod_labels": {
+						LabelsToMatch: []string{"pod", "namespace"},
+						LabelsToGet:   []string{"standard_pod_label"},
+					},
+				},
+				LabelsAsTags: map[string][]string{
+					"pod":  {"my_pod_label"},
+					"node": {"my_node_label"},
+				},
+			},
+			expected: map[string]*JoinsConfig{
+				"kube_pod_labels": {
+					LabelsToMatch: []string{"pod", "namespace"},
+					LabelsToGet:   []string{"standard_pod_label", "my_pod_label"},
+				},
+				"kube_node_labels": {
+					LabelsToMatch: []string{"node"},
+					LabelsToGet:   []string{"my_node_label"},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			k := &KSMCheck{instance: tt.config}
+			k.processLabelsAsTags()
+			assert.Equal(t, tt.expected, k.instance.LabelJoins)
+		})
+	}
+}
+
 func TestKSMCheck_mergeLabelsMapper(t *testing.T) {
 	tests := []struct {
 		name     string
