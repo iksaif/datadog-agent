@@ -11,10 +11,12 @@ import (
 	"inet.af/netaddr"
 )
 
+// IPv4 returns an IPv4 version of Inet6Addr as a netaddr.IP
 func (a Inet6Addr) IPv4() netaddr.IP {
 	return netaddr.IPv4(a.U[12], a.U[13], a.U[14], a.U[15])
 }
 
+// IPv6 returns an IPv6 version of Inet6Addr as a netaddr.IP
 func (a Inet6Addr) IPv6() netaddr.IP {
 	// use raw here to preserve 4over6 traffic as IPv6
 	return netaddr.IPv6Raw(a.U)
@@ -89,6 +91,7 @@ func ToBatch(data []byte) *Batch {
 	return (*Batch)(unsafe.Pointer(&data[0]))
 }
 
+// FromIP updates the Inet6Addr from the netaddr.IP provided.
 func (a *Inet6Addr) FromIP(ip netaddr.IP) {
 	if ip.Is4() {
 		var z [12]byte
