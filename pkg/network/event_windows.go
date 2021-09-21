@@ -3,7 +3,6 @@
 package network
 
 import (
-	"net"
 	"syscall"
 
 	"github.com/DataDog/datadog-agent/pkg/network/driver"
@@ -45,7 +44,7 @@ func isTCPFlowEstablished(flags uint32) bool {
 }
 
 func convertV4Addr(addr [16]uint8) netaddr.IP {
-	return netaddr.IPFrom4(addr[:net.IPv4len])
+	return netaddr.IPv4(addr[0], addr[1], addr[2], addr[3])
 }
 
 func convertV6Addr(addr [16]uint8) netaddr.IP {
