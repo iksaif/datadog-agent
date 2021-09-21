@@ -78,7 +78,7 @@ static __always_inline int read_conn_tuple_partial(conn_tuple_t* t, struct sock*
             read_ipv4(&t->saddr, &skp->sk_rcv_saddr);
         }
         if (!is_ipv4_set(&t->daddr)) {
-            read_ipv4(&t->saddr, &skp->sk_daddr);
+            read_ipv4(&t->daddr, &skp->sk_daddr);
         }
 
         if (!is_ipv4_set(&t->saddr) || !is_ipv4_set(&t->daddr)) {
