@@ -94,7 +94,7 @@ require (
 	github.com/docker/go-connections v0.4.0
 	github.com/dustin/go-humanize v1.0.0
 	github.com/elastic/go-libaudit v0.4.0
-	github.com/fatih/color v1.12.0
+	github.com/fatih/color v1.13.0
 	github.com/fatih/structtag v1.2.0
 	github.com/florianl/go-conntrack v0.1.1-0.20191002182014-06743d3a59db
 	github.com/freddierice/go-losetup v0.0.0-20170407175016-fc9adea44124
@@ -126,7 +126,7 @@ require (
 	github.com/ianlancetaylor/cgosymbolizer v0.0.0-20201204192058-7acc97e53614 // indirect
 	github.com/iceber/iouring-go v0.0.0-20210726032807-b073cc83b2b8
 	github.com/iovisor/gobpf v0.0.0
-	github.com/itchyny/gojq v0.12.4
+	github.com/itchyny/gojq v0.12.5
 	github.com/json-iterator/go v1.1.11
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
 	github.com/klauspost/pgzip v1.2.5 // indirect
