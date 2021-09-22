@@ -235,7 +235,7 @@ func newFileSerializer(fe *model.FileEvent, e *Event) *FileSerializer {
 		Inode:               getUint64Pointer(&fe.Inode),
 		MountID:             getUint32Pointer(&fe.MountID),
 		Filesystem:          e.ResolveFileFilesystem(fe),
-		Mode:                getUint32Pointer(&mode),
+		Mode:                getUint32Pointer(&mode), // only used by open events
 		UID:                 fe.UID,
 		GID:                 fe.GID,
 		User:                e.ResolveFileFieldsUser(&fe.FileFields),

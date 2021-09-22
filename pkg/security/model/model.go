@@ -277,19 +277,25 @@ type ExecEvent struct {
 
 // FileFields holds the information required to identify a file
 type FileFields struct {
-	UID   uint32 `field:"uid"`
-	User  string `field:"user,ResolveFileFieldsUser"`
-	GID   uint32 `field:"gid"`
-	Group string `field:"group,ResolveFileFieldsGroup"`
-	Mode  uint16 `field:"mode" field:"rights,ResolveRights"`
-	CTime uint64 `field:"change_time"`
-	MTime uint64 `field:"modification_time"`
-
+	UID          uint32 `field:"uid"`
+	User         string `field:"user,ResolveFileFieldsUser"`
+	GID          uint32 `field:"gid"`
+	Group        string `field:"group,ResolveFileFieldsGroup"`
+	Mode         uint16 `field:"mode" field:"rights,ResolveRights"`
+	CTime        uint64 `field:"change_time"`
+	MTime        uint64 `field:"modification_time"`
 	MountID      uint32 `field:"mount_id"`
 	Inode        uint64 `field:"inode"`
-	PathID       uint32 `field:"-"`
-	Flags        int32  `field:"-"`
 	InUpperLayer bool   `field:"in_upper_layer,ResolveFileFieldsInUpperLayer"`
+
+	NLink  uint32 `field:"-"`
+	PathID uint32 `field:"-"`
+	Flags  int32  `field:"-"`
+}
+
+// HasHardLinks returns whether the file has hardlink
+func (f *FileFields) HasHardLinks() bool {
+	return f.NLink > 1
 }
 
 // GetInLowerLayer returns whether a file is in a lower layer
